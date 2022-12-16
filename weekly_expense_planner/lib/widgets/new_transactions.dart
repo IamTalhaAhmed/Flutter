@@ -1,14 +1,35 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import './user_transactions.dart';
 
-class NewTransactions extends StatelessWidget {
+class NewTransactions extends StatefulWidget {
   final Function addNewTx;
-  final titlecontroller = TextEditingController();
-  final amountController = TextEditingController();
 
   NewTransactions(this.addNewTx);
+
+  @override
+  State<NewTransactions> createState() => _NewTransactionsState();
+}
+
+class _NewTransactionsState extends State<NewTransactions> {
+  final titlecontroller = TextEditingController();
+
+  final amountController = TextEditingController();
+
+  void submitData() {
+    final enteredTitle = titlecontroller.text;
+    final enteredAmount = double.parse(amountController.text);
+
+    if (enteredTitle.isEmpty || enteredAmount <= 0) {
+      return;
+    }
+
+    // ignore: curly_braces_in_flow_control_structures
+    widget.addNewTx(enteredTitle, enteredAmount);
+
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -21,17 +42,19 @@ class NewTransactions extends StatelessWidget {
             TextField(
               decoration: InputDecoration(labelText: 'Title'),
               controller: titlecontroller,
+              onSubmitted: (_) => submitData(),
             ),
             TextField(
               decoration: InputDecoration(labelText: 'Amount'),
+              keyboardType: TextInputType.number,
               controller: amountController,
+              onSubmitted: (_) => submitData(),
             ),
             TextButton(
               onPressed: () {
                 print(titlecontroller.text);
                 print(amountController.text);
-                addNewTx(
-                    titlecontroller.text, double.parse(amountController.text));
+                submitData();
               },
               // ignore: sort_child_properties_last
               child: Text(
