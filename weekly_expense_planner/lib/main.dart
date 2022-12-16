@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
+import './widgets/chart.dart';
 import './widgets/new_transactions.dart';
 import '../widgets/transaction_list.dart';
 import './models/transaction.dart';
@@ -12,8 +13,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
-      theme: ThemeData(primarySwatch: Colors.red, fontFamily: 'Quicksand'),
+      title: 'Weekly Expense',
+      theme: ThemeData(primarySwatch: Colors.red, fontFamily: 'OpenSans'),
       home: MyHomePage(),
     );
   }
@@ -26,19 +27,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transaction = [
-    Transaction(
-      id: 't1',
-      title: 'New Shoes',
-      price: 6500,
-      time: DateTime.now(),
-    ),
-    Transaction(
-      id: 't2',
-      title: 'Jacket',
-      price: 8500,
-      time: DateTime.now(),
-    ),
+    // Transaction(
+    //   id: 't1',
+    //   title: 'New Shoes',
+    //   price: 6500,
+    //   time: DateTime.now(),
+    // ),
+    // Transaction(
+    //   id: 't2',
+    //   title: 'Jacket',
+    //   price: 8500,
+    //   time: DateTime.now(),
+    // ),
   ];
+  List<Transaction> get _recentTx {
+    return _transaction.where((tx) {
+      return tx.time.isAfter(DateTime.now().subtract(Duration(days: 7)));
+    }).toList();
+  }
+
   void _addNewTransaction(String title, double price) {
     final newTransaction = Transaction(
       id: DateTime.now().toString(),
@@ -64,27 +71,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter App'),
+        title: Text('Weekly Expense'),
+        // ignore: deprecated_member_use
         actions: [
           IconButton(
               onPressed: (() => _showTxSheet(context)), icon: Icon(Icons.add))
         ],
+        // titleTextStyle: Theme.of(context).textTheme,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Card(
-                color: Theme.of(context).primaryColorLight,
-                child: Container(
-                    alignment: Alignment.center,
-                    width: double.infinity,
-                    child: Text(
-                      'Chart',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ))),
+            Chart(_recentTx),
             TransactionList(_transaction),
           ],
         ),
