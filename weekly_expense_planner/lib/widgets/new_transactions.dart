@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class NewTransactions extends StatefulWidget {
   final Function addNewTx;
@@ -12,22 +13,38 @@ class NewTransactions extends StatefulWidget {
 }
 
 class _NewTransactionsState extends State<NewTransactions> {
-  final titlecontroller = TextEditingController();
+  final _titlecontroller = TextEditingController();
+  final _amountController = TextEditingController();
+  DateTime? _selectedDate;
 
-  final amountController = TextEditingController();
+  void _submitData() {
+    final _enteredTitle = _titlecontroller.text;
+    final _enteredAmount = double.parse(_amountController.text);
 
-  void submitData() {
-    final enteredTitle = titlecontroller.text;
-    final enteredAmount = double.parse(amountController.text);
-
-    if (enteredTitle.isEmpty || enteredAmount <= 0) {
+    if (_enteredTitle.isEmpty || _enteredAmount <= 0 || _selectedDate == null) {
       return;
     }
 
     // ignore: curly_braces_in_flow_control_structures
-    widget.addNewTx(enteredTitle, enteredAmount);
+    widget.addNewTx(_enteredTitle, _enteredAmount, _selectedDate);
 
     Navigator.of(context).pop();
+  }
+
+  void _presentDate() {
+    showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(2022),
+            lastDate: DateTime.now())
+        .then((value) {
+      if (value == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = value;
+      });
+    });
   }
 
   @override
@@ -41,27 +58,57 @@ class _NewTransactionsState extends State<NewTransactions> {
           children: [
             TextField(
               decoration: InputDecoration(labelText: 'Title'),
-              controller: titlecontroller,
-              onSubmitted: (_) => submitData(),
+              controller: _titlecontroller,
+              onSubmitted: (_) => _submitData(),
             ),
             TextField(
               decoration: InputDecoration(labelText: 'Amount'),
               keyboardType: TextInputType.number,
-              controller: amountController,
-              onSubmitted: (_) => submitData(),
+              controller: _amountController,
+              onSubmitted: (_) => _submitData(),
+            ),
+            Container(
+              height: 70,
+              child: Row(
+                // ignore: prefer_const_literals_to_create_immutables
+                children: [
+                  Expanded(
+                    child: Text(_selectedDate == null
+                        ? 'No date Choosen'
+                        : 'Picked Date: ${DateFormat.yMEd().format(_selectedDate!)}'),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  TextButton(
+                    onPressed: _presentDate,
+                    // ignore: sort_child_properties_last
+                    child: Text('Choose date',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: TextButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 10,
             ),
             TextButton(
               onPressed: () {
-                print(titlecontroller.text);
-                print(amountController.text);
-                submitData();
+                print(_titlecontroller.text);
+                print(_amountController.text);
+                _submitData();
               },
               // ignore: sort_child_properties_last
               child: Text(
                 'Add Transaction',
                 style: TextStyle(fontSize: 18),
               ),
-              style: TextButton.styleFrom(foregroundColor: Colors.purple),
+              style: TextButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white),
             ),
           ],
         ),
