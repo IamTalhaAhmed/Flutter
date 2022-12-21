@@ -13,20 +13,23 @@ class TransactionList extends StatelessWidget {
         height: 600,
         // ignore: sort_child_properties_last
         child: (transactions.isEmpty)
-            ? Column(
-                children: [
-                  Text(
-                    'No transactions Added yet',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Container(
-                      height: 200,
-                      child: Image.asset(
-                        'assets/image/waiting.png',
-                        fit: BoxFit.cover,
-                      ))
-                ],
-              )
+            ? LayoutBuilder(builder: (ctx, constraints) {
+                return Column(
+                  children: [
+                    Text(
+                      'No transactions Added yet',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Container(
+                        height: constraints.maxHeight * 0.6,
+                        //height: 400,
+                        child: Image.asset(
+                          'assets/image/waiting.png',
+                          fit: BoxFit.cover,
+                        ))
+                  ],
+                );
+              })
             : ListView.builder(
                 itemBuilder: (context, index) {
                   return Card(
@@ -47,11 +50,19 @@ class TransactionList extends StatelessWidget {
                       ),
                       subtitle: Text(
                           DateFormat.yMMMd().format(transactions[index].time)),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () => removeTx(transactions[index].id),
-                        color: Theme.of(context).errorColor,
-                      ),
+                      trailing: MediaQuery.of(context).size.width > 500
+                          ? TextButton.icon(
+                              onPressed: () => removeTx(transactions[index].id),
+                              icon: Icon(Icons.delete),
+                              label: Text('Delete Item'),
+                              style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red),
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () => removeTx(transactions[index].id),
+                              color: Theme.of(context).errorColor,
+                            ),
                     ),
                   );
                   // return Card(
